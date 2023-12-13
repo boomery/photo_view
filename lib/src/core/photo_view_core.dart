@@ -5,6 +5,7 @@ import 'package:photo_view/photo_view.dart'
         PhotoViewHeroAttributes,
         PhotoViewImageTapDownCallback,
         PhotoViewImageTapUpCallback,
+        PhotoViewImageScaleStartCallback,
         PhotoViewImageScaleEndCallback,
         ScaleStateCycle;
 import 'package:photo_view/src/controller/photo_view_controller.dart';
@@ -25,12 +26,12 @@ class PhotoViewCore extends StatefulWidget {
     Key? key,
     required this.imageProvider,
     required this.backgroundDecoration,
-    required this.semanticLabel,
     required this.gaplessPlayback,
     required this.heroAttributes,
     required this.enableRotation,
     required this.onTapUp,
     required this.onTapDown,
+    required this.onScaleStart,
     required this.onScaleEnd,
     required this.gestureDetectorBehavior,
     required this.controller,
@@ -42,7 +43,6 @@ class PhotoViewCore extends StatefulWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.enablePanAlways,
-    required this.strictScale,
   })  : customChild = null,
         super(key: key);
 
@@ -54,6 +54,7 @@ class PhotoViewCore extends StatefulWidget {
     required this.enableRotation,
     this.onTapUp,
     this.onTapDown,
+    this.onScaleStart,
     this.onScaleEnd,
     this.gestureDetectorBehavior,
     required this.controller,
@@ -65,15 +66,12 @@ class PhotoViewCore extends StatefulWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.enablePanAlways,
-    required this.strictScale,
   })  : imageProvider = null,
-        semanticLabel = null,
         gaplessPlayback = false,
         super(key: key);
 
   final Decoration? backgroundDecoration;
   final ImageProvider? imageProvider;
-  final String? semanticLabel;
   final bool? gaplessPlayback;
   final PhotoViewHeroAttributes? heroAttributes;
   final bool enableRotation;
@@ -87,13 +85,13 @@ class PhotoViewCore extends StatefulWidget {
 
   final PhotoViewImageTapUpCallback? onTapUp;
   final PhotoViewImageTapDownCallback? onTapDown;
+  final PhotoViewImageScaleStartCallback? onScaleStart;
   final PhotoViewImageScaleEndCallback? onScaleEnd;
 
   final HitTestBehavior? gestureDetectorBehavior;
   final bool tightMode;
   final bool disableGestures;
   final bool enablePanAlways;
-  final bool strictScale;
 
   final FilterQuality filterQuality;
 
@@ -147,16 +145,12 @@ class PhotoViewCoreState extends State<PhotoViewCore>
     _scaleAnimationController.stop();
     _positionAnimationController.stop();
     _rotationAnimationController.stop();
+    widget.onScaleStart?.call(context, details, controller.value);
   }
 
   void onScaleUpdate(ScaleUpdateDetails details) {
     final double newScale = _scaleBefore! * details.scale;
     final Offset delta = details.focalPoint - _normalizedPosition!;
-
-    if (widget.strictScale && (newScale > widget.scaleBoundaries.maxScale ||
-        newScale < widget.scaleBoundaries.minScale)) {
-      return;
-    }
 
     updateScaleStateFromNewScale(newScale);
 
@@ -390,7 +384,6 @@ class PhotoViewCoreState extends State<PhotoViewCore>
         ? widget.customChild!
         : Image(
             image: widget.imageProvider!,
-            semanticLabel: widget.semanticLabel,
             gaplessPlayback: widget.gaplessPlayback ?? false,
             filterQuality: widget.filterQuality,
             width: scaleBoundaries.childSize.width * scale,

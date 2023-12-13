@@ -11,7 +11,6 @@ class ImageWrapper extends StatefulWidget {
     required this.imageProvider,
     required this.loadingBuilder,
     required this.backgroundDecoration,
-    required this.semanticLabel,
     required this.gaplessPlayback,
     required this.heroAttributes,
     required this.scaleStateChangedCallback,
@@ -25,6 +24,7 @@ class ImageWrapper extends StatefulWidget {
     required this.scaleStateCycle,
     required this.onTapUp,
     required this.onTapDown,
+    required this.onScaleStart,
     required this.onScaleEnd,
     required this.outerSize,
     required this.gestureDetectorBehavior,
@@ -33,14 +33,12 @@ class ImageWrapper extends StatefulWidget {
     required this.disableGestures,
     required this.errorBuilder,
     required this.enablePanAlways,
-    required this.strictScale,
   }) : super(key: key);
 
   final ImageProvider imageProvider;
   final LoadingBuilder? loadingBuilder;
   final ImageErrorWidgetBuilder? errorBuilder;
   final BoxDecoration backgroundDecoration;
-  final String? semanticLabel;
   final bool gaplessPlayback;
   final PhotoViewHeroAttributes? heroAttributes;
   final ValueChanged<PhotoViewScaleState>? scaleStateChangedCallback;
@@ -54,6 +52,7 @@ class ImageWrapper extends StatefulWidget {
   final ScaleStateCycle? scaleStateCycle;
   final PhotoViewImageTapUpCallback? onTapUp;
   final PhotoViewImageTapDownCallback? onTapDown;
+  final PhotoViewImageScaleStartCallback? onScaleStart;
   final PhotoViewImageScaleEndCallback? onScaleEnd;
   final Size outerSize;
   final HitTestBehavior? gestureDetectorBehavior;
@@ -61,7 +60,6 @@ class ImageWrapper extends StatefulWidget {
   final FilterQuality? filterQuality;
   final bool? disableGestures;
   final bool? enablePanAlways;
-  final bool? strictScale;
 
   @override
   _ImageWrapperState createState() => _ImageWrapperState();
@@ -186,7 +184,6 @@ class _ImageWrapperState extends State<ImageWrapper> {
     return PhotoViewCore(
       imageProvider: widget.imageProvider,
       backgroundDecoration: widget.backgroundDecoration,
-      semanticLabel: widget.semanticLabel,
       gaplessPlayback: widget.gaplessPlayback,
       enableRotation: widget.enableRotation,
       heroAttributes: widget.heroAttributes,
@@ -194,10 +191,10 @@ class _ImageWrapperState extends State<ImageWrapper> {
       controller: widget.controller,
       scaleStateController: widget.scaleStateController,
       scaleStateCycle: widget.scaleStateCycle ?? defaultScaleStateCycle,
-      strictScale: widget.strictScale ?? false,
       scaleBoundaries: scaleBoundaries,
       onTapUp: widget.onTapUp,
       onTapDown: widget.onTapDown,
+      onScaleStart: widget.onScaleStart,
       onScaleEnd: widget.onScaleEnd,
       gestureDetectorBehavior: widget.gestureDetectorBehavior,
       tightMode: widget.tightMode ?? false,
@@ -247,6 +244,7 @@ class CustomChildWrapper extends StatelessWidget {
     required this.scaleStateCycle,
     this.onTapUp,
     this.onTapDown,
+    this.onScaleStart,
     this.onScaleEnd,
     required this.outerSize,
     this.gestureDetectorBehavior,
@@ -254,7 +252,6 @@ class CustomChildWrapper extends StatelessWidget {
     required this.filterQuality,
     required this.disableGestures,
     required this.enablePanAlways,
-    required this.strictScale,
   }) : super(key: key);
 
   final Widget? child;
@@ -275,6 +272,7 @@ class CustomChildWrapper extends StatelessWidget {
   final ScaleStateCycle? scaleStateCycle;
   final PhotoViewImageTapUpCallback? onTapUp;
   final PhotoViewImageTapDownCallback? onTapDown;
+  final PhotoViewImageScaleStartCallback? onScaleStart;
   final PhotoViewImageScaleEndCallback? onScaleEnd;
   final Size outerSize;
   final HitTestBehavior? gestureDetectorBehavior;
@@ -282,7 +280,6 @@ class CustomChildWrapper extends StatelessWidget {
   final FilterQuality? filterQuality;
   final bool? disableGestures;
   final bool? enablePanAlways;
-  final bool? strictScale;
 
   @override
   Widget build(BuildContext context) {
@@ -304,9 +301,9 @@ class CustomChildWrapper extends StatelessWidget {
       scaleStateCycle: scaleStateCycle ?? defaultScaleStateCycle,
       basePosition: basePosition ?? Alignment.center,
       scaleBoundaries: scaleBoundaries,
-      strictScale: strictScale ?? false,
       onTapUp: onTapUp,
       onTapDown: onTapDown,
+      onScaleStart: onScaleStart,
       onScaleEnd: onScaleEnd,
       gestureDetectorBehavior: gestureDetectorBehavior,
       tightMode: tightMode ?? false,

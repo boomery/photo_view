@@ -38,7 +38,6 @@ export 'src/utils/photo_view_hero_attributes.dart';
 ///            ),
 ///          ),
 ///  backgroundDecoration: BoxDecoration(color: Colors.black),
-///  semanticLabel: 'Some label',
 ///  gaplessPlayback: false,
 ///  customSize: MediaQuery.of(context).size,
 ///  heroAttributes: const HeroAttributes(
@@ -69,7 +68,6 @@ export 'src/utils/photo_view_hero_attributes.dart';
 ///  ),
 ///  childSize: const Size(220.0, 250.0),
 ///  backgroundDecoration: BoxDecoration(color: Colors.black),
-///  semanticLabel: 'Some label',
 ///  gaplessPlayback: false,
 ///  customSize: MediaQuery.of(context).size,
 ///  heroAttributes: const HeroAttributes(
@@ -240,7 +238,6 @@ class PhotoView extends StatefulWidget {
     this.loadingBuilder,
     this.backgroundDecoration,
     this.wantKeepAlive = false,
-    this.semanticLabel,
     this.gaplessPlayback = false,
     this.heroAttributes,
     this.scaleStateChangedCallback,
@@ -254,6 +251,7 @@ class PhotoView extends StatefulWidget {
     this.scaleStateCycle,
     this.onTapUp,
     this.onTapDown,
+    this.onScaleStart,
     this.onScaleEnd,
     this.customSize,
     this.gestureDetectorBehavior,
@@ -262,7 +260,6 @@ class PhotoView extends StatefulWidget {
     this.disableGestures,
     this.errorBuilder,
     this.enablePanAlways,
-    this.strictScale,
   })  : child = null,
         childSize = null,
         super(key: key);
@@ -291,6 +288,7 @@ class PhotoView extends StatefulWidget {
     this.scaleStateCycle,
     this.onTapUp,
     this.onTapDown,
+    this.onScaleStart,
     this.onScaleEnd,
     this.customSize,
     this.gestureDetectorBehavior,
@@ -298,10 +296,8 @@ class PhotoView extends StatefulWidget {
     this.filterQuality,
     this.disableGestures,
     this.enablePanAlways,
-    this.strictScale,
   })  : errorBuilder = null,
         imageProvider = null,
-        semanticLabel = null,
         gaplessPlayback = false,
         loadingBuilder = null,
         super(key: key);
@@ -324,11 +320,6 @@ class PhotoView extends StatefulWidget {
   /// `false` -> resets the state (default)
   /// `true`  -> keeps the state
   final bool wantKeepAlive;
-
-  /// A Semantic description of the image.
-  ///
-  /// Used to provide a description of the image to TalkBack on Android, and VoiceOver on iOS.
-  final String? semanticLabel;
 
   /// This is used to continue showing the old image (`true`), or briefly show
   /// nothing (`false`), when the `imageProvider` changes. By default it's set
@@ -390,6 +381,7 @@ class PhotoView extends StatefulWidget {
   /// location.
   final PhotoViewImageTapDownCallback? onTapDown;
 
+  final PhotoViewImageScaleStartCallback? onScaleStart;
   /// A pointer that will trigger a scale has stopped contacting the screen at a
   /// particular location.
   final PhotoViewImageScaleEndCallback? onScaleEnd;
@@ -411,9 +403,6 @@ class PhotoView extends StatefulWidget {
   /// Enable pan the widget even if it's smaller than the hole parent widget.
   /// Useful when you want to drag a widget without restrictions.
   final bool? enablePanAlways;
-
-  /// Enable strictScale will restrict user scale gesture to the maxScale and minScale values.
-  final bool? strictScale;
 
   bool get _isCustomChild {
     return child != null;
@@ -528,6 +517,7 @@ class _PhotoViewState extends State<PhotoView>
                 scaleStateCycle: widget.scaleStateCycle,
                 onTapUp: widget.onTapUp,
                 onTapDown: widget.onTapDown,
+                onScaleStart:widget.onScaleStart,
                 onScaleEnd: widget.onScaleEnd,
                 outerSize: computedOuterSize,
                 gestureDetectorBehavior: widget.gestureDetectorBehavior,
@@ -535,13 +525,11 @@ class _PhotoViewState extends State<PhotoView>
                 filterQuality: widget.filterQuality,
                 disableGestures: widget.disableGestures,
                 enablePanAlways: widget.enablePanAlways,
-                strictScale: widget.strictScale,
               )
             : ImageWrapper(
                 imageProvider: widget.imageProvider!,
                 loadingBuilder: widget.loadingBuilder,
                 backgroundDecoration: backgroundDecoration,
-                semanticLabel: widget.semanticLabel,
                 gaplessPlayback: widget.gaplessPlayback,
                 heroAttributes: widget.heroAttributes,
                 scaleStateChangedCallback: widget.scaleStateChangedCallback,
@@ -555,6 +543,7 @@ class _PhotoViewState extends State<PhotoView>
                 scaleStateCycle: widget.scaleStateCycle,
                 onTapUp: widget.onTapUp,
                 onTapDown: widget.onTapDown,
+                onScaleStart:widget.onScaleStart,
                 onScaleEnd: widget.onScaleEnd,
                 outerSize: computedOuterSize,
                 gestureDetectorBehavior: widget.gestureDetectorBehavior,
@@ -563,7 +552,6 @@ class _PhotoViewState extends State<PhotoView>
                 disableGestures: widget.disableGestures,
                 errorBuilder: widget.errorBuilder,
                 enablePanAlways: widget.enablePanAlways,
-                strictScale: widget.strictScale,
               );
       },
     );
@@ -610,6 +598,12 @@ typedef PhotoViewImageTapDownCallback = Function(
   TapDownDetails details,
   PhotoViewControllerValue controllerValue,
 );
+
+typedef PhotoViewImageScaleStartCallback = Function(
+    BuildContext context,
+    ScaleStartDetails details,
+    PhotoViewControllerValue controllerValue,
+    );
 
 /// A type definition for a callback when a user finished scale
 typedef PhotoViewImageScaleEndCallback = Function(
